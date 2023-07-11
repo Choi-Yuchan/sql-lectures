@@ -185,7 +185,65 @@ from emp
 group by deptno
 having avg(sal) >= 2000;
 
+select deptno, max(sal), min(sal) 
+from emp 
+group by deptno having max(sal) >= 2900;
 
+///// join
+-- 여러 테이블에 흩어져 있는 정보 중에서 사용자가 필요한 정보만 가져와서 가상의 테이블처럼 만들어서 결과를 보여준다.
+-- join은 기본적으로 카테이션 곱 
+select * from emp, dept where emp.deptno = dept.deptno;
+select ename, dname from emp e, dept d 
+where e.deptno = d.deptno and ename = 'SMITH';
+
+select ename, sal, grade from emp, salgrade 
+where sal between losal and hisal;
+
+select * from emp, salgrade, dept
+where sal between losal and hisal
+and emp.deptno = dept.deptno;
+
+select e.ename ||'의 매니저는 ' || m.ename || '입니다.' 
+from emp e, emp m
+where e.mgr = m.empno;
+
+///// ANSI JOIN
+--INNER JOIN
+select * from emp 
+inner join dept 
+on emp.deptno = dept.deptno;
+--OUTER JOIN
+--LEFT OUTER JOIN
+select * from dept left outer join emp on emp.deptno = dept.deptno;
+select * from emp left outer join dept on emp.deptno = dept.deptno;
+--RIGHT OUTER JOIN
+select * from dept right outer join emp on emp.deptno = dept.deptno;
+
+// oracle outer join
+select * from dept,emp where emp.deptno(+) = dept.deptno;
+
+--UNION
+//union all - 중복 허용
+select job, deptno from emp where sal >= 3000
+union
+select job, deptno from emp where deptno = 10;
+
+
+//// SUBQUERY
+select deptno from emp where ename = 'SMITH';
+select dname from dept where deptno = 20;
+--join example
+select dname from emp, dept 
+where emp.deptno = dept.deptno and ename = 'SMITH';
+--subquery example
+select dname from dept 
+where deptno = (select deptno from emp where ename = 'SMITH');
+
+select ename from emp 
+where sal >= (select avg(sal) from emp);
+
+select * from emp
+where sal >= (select sal from emp where ename = 'SMITH');
 
 
 
