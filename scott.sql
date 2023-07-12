@@ -245,14 +245,93 @@ where sal >= (select avg(sal) from emp);
 select * from emp
 where sal >= (select sal from emp where ename = 'SMITH');
 
+--multiple-row subquery - 다중행 연산자와 함께 사용 
+select ename,sal,deptno 
+from emp
+where deptno in (select distinct deptno from emp where sal >= 3000);
+
+--any
+select * from emp where sal > any (1000,2000,3000);
+select ename, sal from emp where sal > any (select sal from emp where deptno = 30);
+
+select * from emp where sal > any (1000,2000,3000);
+--all
+select ename,sal
+from emp
+where sal > all (select sal from emp where deptno = 30);
+
+--------
+//1.부서테이블의 모든 데이터를 출력하라.
+select * from dept;
+//2.직원테이블에서 각 사원의 직업,사원번호,이름,입사일을 출력하라.
+select job,empno,ename,hiredate from emp;
+//3.직원테이블에서 직업을 출력하되, 각 항목이 중복되지 않게 출력하라.  
+select distinct job from emp;
+//4.급여가 2850이상인 사원의 이름 및 급여를 출력하라.
+select ename,sal from emp where sal >=2850; 
+//5.사원번호가 7566인 사원의 이름 및 부서번호를 출력하라.
+select ename,empno from emp where empno = 7566; 
+//6.급여가 1500이상 2850이하의 범위에 속하지 ㅇ낳는 모든 사원의 이름 및 급여를 출력하라.
+select ename, sal from emp where sal not between 1500 and 2850;
+//7.1981년2월20일~1981년5월1일에 입사한 사원의 이름,직업 및 입사일을 출력하라.
+select ename,job,hiredate from emp 
+where hiredate between '1981/02/20' and '1981/05/01' 
+order by hiredate asc;
+
+////////////////DDL
+-- 테이블 구조를 정의하는 CREATE TABLE
+create table EMP01(
+    empno number(4), 
+    ename varchar2(20),
+    sal number(7,2)
+);
+
+create table emp02 as select * from emp;
+
+select * from emp02;
+
+create table emp03 as select empno,ename from emp;
+
+select * from emp03;
+-- 테이블 구조를 변경하는 ALTER TABLE
+-- 테이블에 대한 구조 변경은 컬럼의 추가, 수정, 삭제 시 사용된다.
+alter table emp01 add (job varchar2(9));
+alter table emp01 modify (job varchar2(30));
+alter table emp01 drop column job; 
+
+--테이블 삭제 DROP TABLE
+drop table emp01;
+
+-- 테이블의 모든 로우를 제거하는 TRUNCATE TABLE
+truncate table emp02;
+
+-- 테이블명 변경 RENAME
+rename emp02 to test;
+rename test to emp02;
+
+//////DDL
+desc user_tables;
+
+select * from user_tables;
+
+select table_name from user_tables;
+desc all_tables;
 
 
+///// DML
+--CRUD
+create table dept02 as select * from dept;
 
+select * from dept02;
+truncate table dept02;
+--insert
+insert into dept02(deptno, dname, loc) values (10,'ACCOUNTING','NEW YORK');
+insert into dept02(deptno, dname, loc) values (20,'RESEARCH','DALLAS');
+insert into dept02 values (20,'RESEARCH','BOSTON');
 
-
-
-
-
+create table dept03 as select * from dept where 0=1;
+commit;
+select * from dept03;
 
 
 
