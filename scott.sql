@@ -249,10 +249,11 @@ where sal >= (select sal from emp where ename = 'SMITH');
 select ename,sal,deptno 
 from emp
 where deptno in (select distinct deptno from emp where sal >= 3000);
+select ename, sal from emp where sal > (select max(sal) from emp where deptno = 30);
 
 --any
 select * from emp where sal > any (1000,2000,3000);
-select ename, sal from emp where sal > any (select sal from emp where deptno = 30);
+select ename, sal from emp where sal > any (select min(sal) from emp where deptno = 30);
 
 select * from emp where sal > any (1000,2000,3000);
 --all
@@ -331,8 +332,162 @@ insert into dept02 values (20,'RESEARCH','BOSTON');
 
 create table dept03 as select * from dept where 0=1;
 commit;
-select * from dept03;
+select * from dept03;   
+
+--update
+drop table emp01;
+create table emp01 as select * from emp;
+update emp01 set deptno=30;
+update emp01 set sal = sal * 1.1;
+update emp01 set hiredate = sysdate;
+update emp01 set deptno = 40 where deptno = 10;
+update emp01 set sal = sal*1.1 where job = 'MANAGER';
+update emp01 set hiredate = sysdate where substr(hiredate,1,2) = '82';
+update emp01 set deptno=20, job='MANAGER' where ename = 'SMITH';
+update emp01 set hiredate = sysdate, sal=5000, comm = 4000 where ename = 'SMITH';
+select * from emp01;
+
+drop table dept01;
+create table dept01 as select * from dept;
+
+update dept01 
+set loc = (select loc from dept01 where deptno = 40) 
+where deptno = 20;
+
+--delete
+delete from dept01;
+
+delete from dept01 where deptno = 30;
+delete from emp01 where deptno = (select deptno from dept where dname = 'SALES');
 
 
+select * from emp01;
+select * from dept01;
 
+///// transaction 관리
+-- 일련의 작업 단위
+-- all or nothing
+delete from dept01;
+rollback;
+delete from dept01 where deptno = 20;
+commit;
 
+-- DDL 구문은 자동으로 commit을 실행 / rollback 안됨.
+-- create, alter, drop, rename, truncate
+-- DML : insert, delete, update, select
+
+///// 데이터 무결성
+-- NOT NULL
+DROP TABLE EMP02;
+
+CREATE TABLE EMP02(
+    EMPNO NUMBER(4) NOT NULL, 
+    ENAME VARCHAR2(10) NOT NULL, 
+    JOB VARCHAR2(9), 
+    DEPTNO NUMBER(2)
+);
+
+desc emp02;
+insert into emp02 values (1,'JACK','SALESMAN',20);
+select * from emp02;
+
+--Unique
+drop table emp03;
+CREATE TABLE EMP03(
+    EMPNO NUMBER(4) unique NOT NULL, 
+    ENAME VARCHAR2(10) NOT NULL, 
+    JOB VARCHAR2(9), 
+    DEPTNO NUMBER(2)
+);
+insert into emp03 values (1,'JACK','SALESMAN',20);
+insert into emp03 values (2,'JACKSON','SALESMAN',20);
+insert into emp03 values (null,'JACKSON','SALESMAN',20);
+
+-- primary key = unique + not null
+DROP TABLE EMP05;
+
+CREATE TABLE EMP05(
+EMPNO NUMBER(4) CONSTRAINT EMP05_EMPNO_PK PRIMARY KEY, 
+ENAMR VARCHAR2(10) CONSTRAINT EMP05_ENAME_NN NOT NULL, 
+JOB VARCHAR(9), 
+DEPTNO NUMBER(2)
+);
+select * from emp05;
+
+-- foreign key
+drop table emp06;
+
+create table emp06(
+    empno number(4) constraint emp06_empno_pk primary key,
+    ename varchar2(10) constraint emp06_ename_nn not null,
+    job varchar(9),
+    deptno number(2) constraint emp06_deptno_fk references dept(deptno)
+);
+
+insert into emp06 values(7499,'ALLEN','SALESMAN', 30);
+insert into emp06 values(7800,'JACK','SALESMAN', 40);
+
+select * from emp06;
+
+--check
+create table student(
+    id number(4) primary key,
+    score number(3) not null,
+    constraint SCORE_CHECK check (score >=0)
+);
+alter table student add constraint SCORE_CHECK check (score <= 100);
+insert into student values(1, 100);
+insert into student values(2, -100);
+
+select * from student;
+
+///// Sequence (auto increment)
+create sequence emp_seq start with 1 increment by 1 maxvalue 100000;
+
+drop table emp01;
+CREATE TABLE EMP01(
+    EMPNO NUMBER(4) PRIMARY KEY, 
+    ENAME VARCHAR(10), 
+    HIREDATE DATE
+);
+
+insert into emp01 values(emp_seq.nextval, 'John', sysdate);
+insert into emp01 values(emp_seq.nextval, 'James', sysdate);
+select * from emp01;
+
+select emp_seq.currval from dual;
+select emp_seq.nextval from dual;
+alter sequence emp_seq increment by 2;
+drop sequence emp_seq;
+
+/////// practices
+select * from emp;
+-- 8. 
+select ename, deptno from emp where deptno = 10 or deptno = 30 order by ename asc;
+-- 9.
+select ename as employee, sal as "Monthly Salary" from emp where deptno in (10,30) and sal > 1500;
+-- 10.
+select ename, job from emp where mgr is null;
+-- 11.
+select ename, sal, comm from emp where comm is not null order by sal desc;
+-- 12.
+select ename from emp where ename like '__A%';
+-- 13.
+select ename from emp where ename like '%L%L%' and deptno = 30;
+-- 14.
+select ename,job,sal from emp 
+where job = 'CLERK' or job = 'ANALYST' and sal not in (1000,3000,5000);
+--15.
+select empno,ename,sal, round(sal*1.15) as "New Salary" from emp;
+--16.
+select empno,ename,sal, round(sal*1.15) as "New Salary", round(sal*1.15-sal) as Increase from emp;
+--18.
+select initcap(ename), length(ename) from emp;
+--19.
+select ename, nvl(to_char(comm),'no commision') from emp;
+--20.
+select ename,deptno,decode(deptno,10,'ACCOUNTING',20,'RESEARCH',30,'SALES') as dname from emp;
+--21.
+select e.ename, e.deptno, d.dname from emp e, dept d where e.deptno = d.deptno and e.deptno = 30; 
+--22.
+select d.loc,distinct e.job from emp e, dept d where e.deptno = d.deptno and e.deptno = 30;
