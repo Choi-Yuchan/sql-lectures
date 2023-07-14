@@ -490,4 +490,4 @@ select ename,deptno,decode(deptno,10,'ACCOUNTING',20,'RESEARCH',30,'SALES') as d
 --21.
 select e.ename, e.deptno, d.dname from emp e, dept d where e.deptno = d.deptno and e.deptno = 30; 
 --22.
-select d.loc,distinct e.job from emp e, dept d where e.deptno = d.deptno and e.deptno = 30;
+select distinct e.job, d.loc from emp e, dept d where e.deptno = d.deptno and e.deptno = 30;
