@@ -477,17 +477,98 @@ select ename from emp where ename like '%L%L%' and deptno = 30;
 -- 14.
 select ename,job,sal from emp 
 where job = 'CLERK' or job = 'ANALYST' and sal not in (1000,3000,5000);
---15.
+-- 15.
 select empno,ename,sal, round(sal*1.15) as "New Salary" from emp;
---16.
+-- 16.
 select empno,ename,sal, round(sal*1.15) as "New Salary", round(sal*1.15-sal) as Increase from emp;
---18.
+-- 18.
 select initcap(ename), length(ename) from emp;
---19.
+-- 19.
 select ename, nvl(to_char(comm),'no commision') from emp;
---20.
+-- 20.
 select ename,deptno,decode(deptno,10,'ACCOUNTING',20,'RESEARCH',30,'SALES') as dname from emp;
---21.
+-- 21.
 select e.ename, e.deptno, d.dname from emp e, dept d where e.deptno = d.deptno and e.deptno = 30; 
---22.
+-- 22.
 select distinct e.job, d.loc from emp e, dept d where e.deptno = d.deptno and e.deptno = 30;
+select * from emp;
+-- 23.
+select dname, ename, loc from emp, dept where comm is not null;
+-- 24.
+select ename, dname from emp e, dept d where e.deptno = d.deptno and ename like '%A%';
+-- 25.
+select e.ename, e.job, d.dname, d.deptno 
+from emp e, dept d 
+where e.deptno = d.deptno and d.loc = 'DALLAS';
+-- 26.
+select e.ename as employee,e.empno as emp#, m.ename as manager, e.mgr as mgr# 
+from emp e, emp m 
+where m.empno = e.mgr; 
+-- 27.
+select e.ename,e.job,d.dname,e.sal,s.grade from emp e, salgrade s, dept d 
+where e.sal between s.losal and s.hisal and e.deptno = d.deptno;
+-- 28.
+select ename, hiredate from emp where hiredate > (select hiredate from emp where ename = 'SMITH');
+-- 29.
+select e.ename as Employee, e.hiredate as EmpHiredate, m.ename as Manager, m.hiredate as MgrHireDate
+from emp e, emp m
+where e.mgr = m.empno and e.hiredate < m.hiredate;
+-- 30.
+select max(sal) as Maximum, min(sal) as Minimum, sum(sal) as SUM, avg(sal) as Average from emp;
+-- 31.
+select job, max(sal), min(sal), sum(sal), avg(sal) 
+from emp 
+group by job;
+-- 32.
+select job, count(job) from emp group by job;
+-- 33.
+select count(distinct mgr) as "Number of Manager" from emp;
+-- 34.
+select max(sal)-min(sal) as difference from emp;
+-- 35.
+select mgr, min(sal) from emp where mgr is not null group by mgr having min(sal) > 1000  order by min(sal) desc;
+select * from emp;
+///////////////
+CREATE TABLE users (
+	id	varchar2(50)		NULL,
+	email	varchar2(100)		NOT NULL
+);
+
+ALTER TABLE users ADD CONSTRAINT PK_USERS PRIMARY KEY (
+	id
+);
+-- 
+CREATE TABLE users (
+	email	varchar2(100)		NOT NULL,
+	images_id	number		NOT NULL
+);
+
+CREATE TABLE images (
+	id	number		NOT NULL,
+	path	varchar2(200)		NOT NULL
+);
+
+ALTER TABLE images ADD CONSTRAINT PK_IMAGES PRIMARY KEY (
+	id
+);
+
+
+///rownum
+-- rownum = pagination in oracle
+-- select 해온 데이터 일련 번호 붙이기
+select emp.* from emp where rownum <= 10;
+select rownum, emp.* from emp where rownum between 5 and 10; // rownum이 1번부터 시작하기 때문에 출력 결과 안나옴
+
+select * 
+from (select rownum as rn, emp.* from emp) 
+where rn between 5 and 10;
+
+// oracle query process sequence
+-- 1. from 절이 먼저 처리됩니다.
+-- 2. where 절이 처리됩니다.
+-- 3. rownum이 할당되고 from/where 절에서 전달되는 각각의 출력 로우에 대해 증가됩니다.
+-- 4. select가 적용됩니다.
+-- 5. group by 조건이 적용됩니다.
+-- 6. having이 적용됩니다.
+-- 7. order by 조건이 적용됩니다.
+
