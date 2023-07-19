@@ -572,3 +572,25 @@ where rn between 5 and 10;
 -- 6. having이 적용됩니다.
 -- 7. order by 조건이 적용됩니다.
 
+//test
+--36> 부서별로 부서이름, 부서위치, 사원 수 및 평균 급여를 출력하라.그리고 각각의 컬럼명을 부서명,위치,사원의 수,평균급여로 표시하라.
+SELECT
+  dname AS 부서명,
+  loc AS 위치,
+  COUNT(empno) AS 사원의_수,
+  AVG(sal) AS 평균급여
+FROM
+  dept
+  JOIN emp ON dept.deptno = emp.deptno
+GROUP BY
+  dname, loc;
+  
+-- 37.
+select ename, hiredate from emp where deptno in (select deptno from emp where ename ='SMITH') and not ename = 'SMITH';
+
+-- 38.
+select empno, ename, sal, (select avg(sal) from emp)as avg from emp where sal > (select avg(sal) from emp) order by sal desc;
+
+-- 39.
+select empno, ename from emp where deptno in (select deptno from emp where ename like '%T%');
+
