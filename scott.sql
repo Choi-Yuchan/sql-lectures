@@ -594,3 +594,4 @@ select empno, ename, sal, (select avg(sal) from emp)as avg from emp where sal > 
 -- 39.
 select empno, ename from emp where deptno in (select deptno from emp where ename like '%T%');
 
+select * from mvc_board;
